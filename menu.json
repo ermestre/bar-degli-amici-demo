@@ -85,15 +85,6 @@
       "disponibile": true
     },
     {
-      "id": "d3",
-      "categoria": "bere",
-      "nome": "Cocktail del giorno",
-      "descrizione": "Chiedete al banco il cocktail di stasera",
-      "prezzo": 8,
-      "foto": "",
-      "disponibile": true
-    },
-    {
       "id": "d4",
       "categoria": "bere",
       "nome": "Calice di vino",
@@ -108,7 +99,7 @@
       "nome": "Prosecco",
       "descrizione": "Calice di prosecco brut",
       "prezzo": 6,
-      "foto": "",
+      "foto": "img/d5-1793373542954.jpg",
       "disponibile": true
     },
     {

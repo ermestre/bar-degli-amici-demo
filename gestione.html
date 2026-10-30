@@ -68,6 +68,8 @@
       <input type="text" id="sData" data-s="data">
       <label for="sTesto">Testo</label>
       <textarea id="sTesto" data-s="testo"></textarea>
+      <label for="sPrezzo">Prezzo € (0 = la serata non si ordina dalla pagina)</label>
+      <input type="number" step="0.5" min="0" id="sPrezzo" data-s="prezzo">
       <div class="top" style="margin-top:10px">
         <img class="thumb" id="sThumb" alt="" style="visibility:hidden">
         <div><button class="btn ghost" data-act="serata-foto">Carica foto della serata</button></div>
@@ -166,6 +168,7 @@
     $("sTitolo").value = s.titolo || "";
     $("sData").value = s.data || "";
     $("sTesto").value = s.testo || "";
+    $("sPrezzo").value = s.prezzo ?? 0;
     $("sThumb").src = s.foto ? s.foto + "?v=" + Date.now() : "";
     $("sThumb").style.visibility = s.foto ? "visible" : "hidden";
 
@@ -204,7 +207,7 @@
   document.getElementById("serataCard").addEventListener("input", e => {
     const f = e.target.dataset.s;
     if (!f) return;
-    menu.serata[f] = e.target.value;
+    menu.serata[f] = f === "prezzo" ? Number(e.target.value) : e.target.value;
     setDirty(true);
   });
   $("sAttiva").addEventListener("change", e => {

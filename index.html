@@ -218,7 +218,19 @@
   // Il menu è in menu.json: la gestione lo modifica, la pagina lo legge ad ogni apertura
   fetch("menu.json", { cache: "no-store" })
     .then(r => r.json())
-    .then(data => { menu = data; renderMenu(); })
+    .then(data => {
+      menu = data;
+      // La serata diventa un piatto ordinabile se ha un prezzo maggiore di zero
+      const s = menu.serata;
+      if (s && s.attiva && Number(s.prezzo) > 0) {
+        menu.categorie.unshift({ id: "serata", nome: "Serata", nota: "" });
+        menu.piatti.unshift({
+          id: "serata", categoria: "serata", nome: s.titolo, descrizione: s.data,
+          prezzo: Number(s.prezzo), foto: s.foto || "", disponibile: true
+        });
+      }
+      renderMenu();
+    })
     .catch(() => {
       document.getElementById("menu").innerHTML = '<p class="msg">Menu non disponibile, riprova tra poco.</p>';
     });

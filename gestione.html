@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestione menu – Bar degli Amici (demo)</title>
+<style>
+  :root { --accent: #c2410c; --ok: #15803d; --line: #e5dccf; --muted: #7a6a5a; --bg: #fbf7f0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #2b2118; padding-bottom: 96px; }
+  header { background: var(--accent); color: #fff; padding: 16px 16px 12px; }
+  header h1 { margin: 0; font-size: 1.25rem; }
+  header a { color: #fff; font-size: .9rem; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 14px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: 8px 0 4px; }
+  input[type=text], input[type=password], input[type=number], textarea {
+    width: 100%; font-size: 1rem; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff;
+  }
+  textarea { min-height: 56px; }
+  .btn { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 10px 14px; font-size: .95rem; font-weight: 700; cursor: pointer; }
+  .btn.ghost { background: #f3ebe0; color: #5a3b1f; }
+  .btn.danger { background: #fee2e2; color: #991b1b; }
+  .btn:disabled { opacity: .5; }
+  h2 { font-size: 1.05rem; color: var(--accent); margin: 22px 0 8px; }
+  .piatto { border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; background: #fffdf9; }
+  .piatto.off { background: #f3f1ee; }
+  .top { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: start; }
+  .thumb { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; background: #eee; border: 1px solid var(--line); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .row input[type=number] { width: 110px; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: .95rem; }
+  .status { position: sticky; bottom: 76px; background: #1f2937; color: #fff; padding: 10px 14px; border-radius: 10px; font-size: .9rem; margin-top: 12px; display: none; }
+  .savebar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 12px 14px; display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+  .savebar .btn { flex: 1; }
+  .hidden { display: none !important; }
+  .hint { color: var(--muted); font-size: .85rem; line-height: 1.35; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gestione menu · Bar degli Amici (demo)</h1>
+  <a href="index.html?tavolo=1" target="_blank">Apri la pagina dei clienti →</a>
+</header>
+
+<div class="wrap">
+
+  <!-- Accesso -->
+  <section id="login" class="card">
+    <p class="hint">Inserisci il codice di accesso (token GitHub) per modificare il menu. Resta salvato su questo telefono.</p>
+    <label for="repo">Repository</label>
+    <input type="text" id="repo" value="ermestre/bar-degli-amici-demo">
+    <label for="token">Codice di accesso</label>
+    <input type="password" id="token" autocomplete="off">
+    <div class="row"><button class="btn" id="loginBtn">Entra</button></div>
+  </section>
+
+  <!-- Editor -->
+  <section id="editor" class="hidden">
+    <div class="card">
+      <p class="hint">Modifica nome, descrizione, prezzo, foto o disponibilità. Poi premi <strong>Salva modifiche</strong> in fondo.</p>
+    </div>
+    <div id="lists"></div>
+    <div class="card">
+      <label for="newCat">Aggiungi un piatto</label>
+      <div class="row">
+        <select id="newCat" style="font-size:1rem;padding:9px;border-radius:10px;border:1px solid var(--line)"></select>
+        <button class="btn ghost" id="addBtn">+ Nuovo piatto</button>
+      </div>
+    </div>
+    <div class="card">
+      <button class="btn ghost" id="logoutBtn">Esci da questo telefono</button>
+    </div>
+  </section>
+
+  <div class="status" id="status"></div>
+  <input type="file" id="filePick" accept="image/*" class="hidden">
+</div>
+
+<div class="savebar hidden" id="savebar">
+  <span class="hint" id="dirtyInfo">Nessuna modifica</span>
+  <button class="btn" id="saveBtn">Salva modifiche</button>
+</div>
+
+<script>
+  let token = localStorage.getItem("demo_token") || "";
+  let repo = localStorage.getItem("demo_repo") || "ermestre/bar-degli-amici-demo";
+  let menu = null;      // contenuto di menu.json
+  let menuSha = null;   // versione del file su GitHub (serve per salvare)
+  let dirty = false;
+  let pendingPhotoFor = null;
+
+  const $ = id => document.getElementById(id);
+
+  function say(text, ms = 3000) {
+    const s = $("status");
+    s.textContent = text;
+    s.style.display = "block";
+    clearTimeout(say.t);
+    say.t = setTimeout(() => s.style.display = "none", ms);
+  }
+
+  function b64encode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    bytes.forEach(b => bin += String.fromCharCode(b));
+    return btoa(bin);
+  }
+  function b64decode(b64) {
+    const bin = atob(b64.replace(/\n/g, ""));
+    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  async function api(path, opts = {}) {
+    const r = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      ...opts,
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" }
+    });
+    return r;
+  }
+
+  function setDirty(v) {
+    dirty = v;
+    $("dirtyInfo").textContent = v ? "Modifiche non salvate" : "Nessuna modifica";
+    $("savebar").classList.remove("hidden");
+  }
+
+  async function loadMenu() {
+    const r = await api("menu.json");
+    if (!r.ok) {
+      say("Accesso non riuscito: controlla il codice (" + r.status + ")", 5000);
+      return false;
+    }
+    const data = await r.json();
+    menuSha = data.sha;
+    menu = JSON.parse(b64decode(data.content));
+    render();
+    return true;
+  }
+
+  function render() {
+    // Categorie nel menu a tendina per i nuovi piatti
+    $("newCat").innerHTML = menu.categorie.map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+
+    $("lists").innerHTML = menu.categorie.map(cat => {
+      const items = menu.piatti.filter(p => p.categoria === cat.id);
+      return `<h2>${cat.nome}</h2>` + items.map(p => `
+        <div class="piatto ${p.disponibile ? "" : "off"}" data-id="${p.id}">
+          <div class="top">
+            <img class="thumb" src="${p.foto ? p.foto + "?v=" + Date.now() : ""}" alt="" ${p.foto ? "" : 'style="visibility:hidden"'}>
+            <div>
+              <label>Nome</label>
+              <input type="text" data-f="nome" value="${esc(p.nome)}">
+              <label>Descrizione</label>
+              <textarea data-f="descrizione">${esc(p.descrizione)}</textarea>
+            </div>
+          </div>
+          <div class="row">
+            <label style="margin:0">Prezzo €</label>
+            <input type="number" step="0.5" min="0" data-f="prezzo" value="${p.prezzo}">
+            <label class="check"><input type="checkbox" data-f="disponibile" ${p.disponibile ? "checked" : ""}> Disponibile</label>
+          </div>
+          <div class="row">
+            <button class="btn ghost" data-act="foto">Carica foto</button>
+            <button class="btn danger" data-act="elimina">Elimina</button>
+          </div>
+        </div>`).join("") + (items.length ? "" : '<p class="hint">Nessun piatto in questa categoria.</p>');
+    }).join("");
+  }
+
+  function esc(s) {
+    return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  }
+
+  // Modifiche ai campi
+  document.addEventListener("input", e => {
+    const card = e.target.closest(".piatto");
+    if (!card || !e.target.dataset.f) return;
+    const p = menu.piatti.find(x => x.id === card.dataset.id);
+    const f = e.target.dataset.f;
+    p[f] = f === "prezzo" ? Number(e.target.value) : e.target.value;
+    setDirty(true);
+  });
+  document.addEventListener("change", e => {
+    if (e.target.dataset.f !== "disponibile") return;
+    const card = e.target.closest(".piatto");
+    const p = menu.piatti.find(x => x.id === card.dataset.id);
+    p.disponibile = e.target.checked;
+    card.classList.toggle("off", !p.disponibile);
+    setDirty(true);
+  });
+
+  // Pulsanti su ogni piatto
+  document.addEventListener("click", e => {
+    const act = e.target.dataset.act;
+    if (!act) return;
+    const id = e.target.closest(".piatto").dataset.id;
+    if (act === "elimina") {
+      const p = menu.piatti.find(x => x.id === id);
+      if (!confirm(`Eliminare "${p.nome}"?`)) return;
+      menu.piatti = menu.piatti.filter(x => x.id !== id);
+      setDirty(true);
+      render();
+    }
+    if (act === "foto") {
+      pendingPhotoFor = id;
+      $("filePick").value = "";
+      $("filePick").click();
+    }
+  });
+
+  $("addBtn").addEventListener("click", () => {
+    const id = "p" + Date.now();
+    menu.piatti.push({ id, categoria: $("newCat").value, nome: "Nuovo piatto", descrizione: "", prezzo: 5, foto: "", disponibile: true });
+    setDirty(true);
+    render();
+    say("Piatto aggiunto in fondo alla categoria: compilalo e salva");
+  });
+
+  // Foto: ridimensiona nel telefono e carica nel repository
+  $("filePick").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file || !pendingPhotoFor) return;
+    const p = menu.piatti.find(x => x.id === pendingPhotoFor);
+    say("Caricamento foto in corso…", 20000);
+    try {
+      const dataUrl = await resizeToDataUrl(file, 800);
+      const base64 = dataUrl.split(",")[1];
+      const path = `img/${p.id}-${Date.now()}.jpg`;
+      const r = await api(path, {
+        method: "PUT",
+        body: JSON.stringify({ message: `Foto piatto ${p.nome}`, content: base64 })
+      });
+      if (!r.ok) throw new Error("status " + r.status);
+      p.foto = path;
+      setDirty(true);
+      render();
+      say("Foto caricata. Ora premi Salva modifiche.", 4000);
+    } catch (err) {
+      say("Foto non caricata: " + err.message, 5000);
+    }
+    pendingPhotoFor = null;
+  });
+
+  function resizeToDataUrl(file, maxSide) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  // Salvataggio di menu.json
+  $("saveBtn").addEventListener("click", async () => {
+    $("saveBtn").disabled = true;
+    try {
+      const body = JSON.stringify({
+        message: "Aggiornamento menu",
+        content: b64encode(JSON.stringify(menu, null, 2) + "\n"),
+        sha: menuSha
+      });
+      const r = await api("menu.json", { method: "PUT", body });
+      if (r.status === 409) {
+        say("Il menu è stato cambiato da un altro telefono: ricarica la pagina", 6000);
+        return;
+      }
+      if (!r.ok) throw new Error("status " + r.status);
+      const data = await r.json();
+      menuSha = data.content.sha;
+      setDirty(false);
+      say("Salvato. La pagina dei clienti si aggiorna in un minuto circa.", 4000);
+    } catch (err) {
+      say("Salvataggio non riuscito: " + err.message, 5000);
+    } finally {
+      $("saveBtn").disabled = false;
+    }
+  });
+
+  // Accesso
+  $("loginBtn").addEventListener("click", async () => {
+    token = $("token").value.trim();
+    repo = $("repo").value.trim();
+    if (!token) return say("Inserisci il codice di accesso");
+    localStorage.setItem("demo_token", token);
+    localStorage.setItem("demo_repo", repo);
+    if (await loadMenu()) {
+      $("login").classList.add("hidden");
+      $("editor").classList.remove("hidden");
+    }
+  });
+  $("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("demo_token");
+    location.reload();
+  });
+
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+  if (token) {
+    $("repo").value = repo;
+    loadMenu().then(ok => {
+      if (ok) { $("login").classList.add("hidden"); $("editor").classList.remove("hidden"); }
+    });
+  }
+</script>
+</body>
+</html>

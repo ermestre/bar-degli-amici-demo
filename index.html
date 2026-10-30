@@ -61,6 +61,12 @@
   .btn:disabled { background: #b8b1a8; cursor: not-allowed; }
   footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 18px; }
   .msg { text-align: center; padding: 40px 18px; color: var(--muted); }
+  .serata { margin: 14px 14px 0; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .serata img { width: 100%; height: 170px; object-fit: cover; display: block; }
+  .serata .sb { padding: 12px 14px; }
+  .serata .sd { color: var(--accent); font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+  .serata h3 { margin: 4px 0 6px; font-size: 1.15rem; }
+  .serata p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.35; }
 </style>
 </head>
 <body>
@@ -110,9 +116,25 @@
     return document.getElementById("tableSelect").value;
   }
 
+  function esc(s) {
+    return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  }
+
+  // Banner della serata: visibile solo se attivato dalla gestione
+  function serataHtml() {
+    const s = menu.serata;
+    if (!s || !s.attiva) return "";
+    const img = s.foto ? `<img src="${s.foto}" alt="">` : "";
+    return `<div class="serata">${img}<div class="sb">
+      <div class="sd">${esc(s.data)}</div>
+      <h3>${esc(s.titolo)}</h3>
+      <p>${esc(s.testo)}</p>
+    </div></div>`;
+  }
+
   function renderMenu() {
     const box = document.getElementById("menu");
-    box.innerHTML = menu.categorie.map(cat => {
+    box.innerHTML = serataHtml() + menu.categorie.map(cat => {
       const items = menu.piatti.filter(p => p.categoria === cat.id);
       const cards = items.map((p, i) => {
         const idx = menu.piatti.indexOf(p);

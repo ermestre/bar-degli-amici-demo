@@ -59,6 +59,12 @@
   <!-- Editor -->
   <section id="editor" class="hidden">
 
+    <h2>Ordini</h2>
+    <div class="card">
+      <label for="waNum">Numero WhatsApp che riceve gli ordini (con prefisso, senza +)</label>
+      <input type="text" id="waNum" inputmode="numeric" placeholder="es. 393471545079">
+    </div>
+
     <h2>Serata in evidenza</h2>
     <div class="card" id="serataCard">
       <label class="check"><input type="checkbox" id="sAttiva"> Mostra la serata in cima alla pagina clienti</label>
@@ -163,6 +169,7 @@
 
   function render() {
     // Serata
+    $("waNum").value = menu.whatsapp || "";
     const s = menu.serata;
     $("sAttiva").checked = !!s.attiva;
     $("sTitolo").value = s.titolo || "";
@@ -208,6 +215,10 @@
     const f = e.target.dataset.s;
     if (!f) return;
     menu.serata[f] = f === "prezzo" ? Number(e.target.value) : e.target.value;
+    setDirty(true);
+  });
+  $("waNum").addEventListener("input", e => {
+    menu.whatsapp = e.target.value.replace(/\D/g, "");
     setDirty(true);
   });
   $("sAttiva").addEventListener("change", e => {

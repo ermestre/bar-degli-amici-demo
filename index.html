@@ -94,7 +94,7 @@
 
 <script>
   // Numero WhatsApp del locale (formato internazionale, senza +). Finto per la demo.
-  const WHATSAPP_NUMBER = "390000000000";
+  let WHATSAPP_NUMBER = "390000000000";  // sovrascritto da menu.json se la gestione ne ha impostato uno
 
   let menu = null;          // contenuto di menu.json
   const cart = {};          // id piatto -> quantità
@@ -220,6 +220,7 @@
     .then(r => r.json())
     .then(data => {
       menu = data;
+      if (menu.whatsapp) WHATSAPP_NUMBER = menu.whatsapp;
       // La serata diventa un piatto ordinabile se ha un prezzo maggiore di zero
       const s = menu.serata;
       if (s && s.attiva && Number(s.prezzo) > 0) {

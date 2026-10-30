@@ -27,7 +27,7 @@
       "nome": "Apericena Light",
       "descrizione": "Spritz o calice di vino + 3 stuzzichini",
       "prezzo": 5,
-      "foto": "",
+      "foto": "img/a1-1793373320981.jpg",
       "disponibile": true
     },
     {
@@ -36,7 +36,7 @@
       "nome": "Apericena Classico",
       "descrizione": "Un drink a scelta + tagliere di salumi e formaggi",
       "prezzo": 8,
-      "foto": "",
+      "foto": "img/a2-1793373347303.jpg",
       "disponibile": true
     },
     {
@@ -45,7 +45,7 @@
       "nome": "Apericena Tagliere",
       "descrizione": "Due drink + tagliere misto e focaccia",
       "prezzo": 12,
-      "foto": "",
+      "foto": "img/a3-1793373369068.jpg",
       "disponibile": true
     },
     {
@@ -81,7 +81,7 @@
       "nome": "Birra artigianale",
       "descrizione": "Bionda o rossa alla spina, 40 cl",
       "prezzo": 5,
-      "foto": "",
+      "foto": "img/d2-1793373397365.jpg",
       "disponibile": true
     },
     {

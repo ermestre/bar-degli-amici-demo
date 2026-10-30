@@ -35,7 +35,7 @@
       "nome": "Apericena Classico",
       "descrizione": "Un drink a scelta + tagliere di salumi e formaggi",
       "prezzo": 8,
-      "foto": "",
+      "foto": "img/a2-1793372364477.jpg",
       "disponibile": true
     },
     {
@@ -44,7 +44,7 @@
       "nome": "Apericena Tagliere",
       "descrizione": "Due drink + tagliere misto e focaccia",
       "prezzo": 12,
-      "foto": "",
+      "foto": "img/a3-1793372380888.jpg",
       "disponibile": true
     },
     {

@@ -71,7 +71,7 @@
       "nome": "Spritz",
       "descrizione": "Aperol o Campari, prosecco, soda",
       "prezzo": 6,
-      "foto": "",
+      "foto": "img/d1-1793372408613.jpg",
       "disponibile": true
     },
     {
@@ -80,7 +80,7 @@
       "nome": "Birra artigianale",
       "descrizione": "Bionda o rossa alla spina, 40 cl",
       "prezzo": 5,
-      "foto": "",
+      "foto": "img/d2-1793372417945.jpg",
       "disponibile": true
     },
     {
@@ -107,7 +107,7 @@
       "nome": "Prosecco",
       "descrizione": "Calice di prosecco brut",
       "prezzo": 6,
-      "foto": "",
+      "foto": "img/d5-1793372434119.jpg",
       "disponibile": true
     },
     {

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar degli Amici – Ordina dal tavolo</title>
+<style>
+  :root {
+    --bg: #fbf7f0; --card: #ffffff; --ink: #2b2118; --muted: #7a6a5a;
+    --accent: #c2410c; --accent-soft: #fde7d6; --ok: #15803d; --line: #eadfd2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); padding-bottom: 110px;
+  }
+  header {
+    background: var(--accent); color: #fff; padding: 22px 18px 18px; text-align: center;
+  }
+  header h1 { margin: 0; font-size: 1.5rem; }
+  header p { margin: 6px 0 0; opacity: .92; font-size: .95rem; }
+  .table-picker { padding: 14px 18px 0; text-align: center; }
+  .table-picker select {
+    font-size: 1rem; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line);
+  }
+  h2 {
+    font-size: 1.15rem; margin: 26px 18px 6px; color: var(--accent);
+  }
+  .intro { margin: 0 18px; color: var(--muted); font-size: .92rem; }
+  .list { padding: 8px 14px; display: grid; gap: 12px; }
+  .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    overflow: hidden; display: grid; grid-template-columns: 110px 1fr;
+  }
+  .item img { width: 110px; height: 100%; object-fit: cover; min-height: 110px; }
+  .info { padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .name { font-weight: 700; }
+  .desc { color: var(--muted); font-size: .85rem; line-height: 1.3; }
+  .row { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .price { font-weight: 700; color: var(--accent); }
+  .qty { display: flex; align-items: center; gap: 8px; }
+  .qty button {
+    width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--accent-soft);
+    color: var(--accent); font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  }
+  .qty span { min-width: 18px; text-align: center; font-weight: 700; }
+  .cart {
+    position: fixed; left: 0; right: 0; bottom: 0; background: #fff;
+    border-top: 1px solid var(--line); padding: 12px 16px; display: flex;
+    align-items: center; justify-content: space-between; gap: 12px;
+    box-shadow: 0 -6px 18px rgba(0,0,0,.06);
+  }
+  .cart .sum { font-size: .95rem; }
+  .cart .sum strong { display: block; font-size: 1.15rem; }
+  .btn {
+    background: var(--ok); color: #fff; border: 0; border-radius: 12px;
+    padding: 12px 18px; font-size: 1rem; font-weight: 700; text-decoration: none;
+    cursor: pointer; display: inline-block;
+  }
+  .btn:disabled { background: #b8b1a8; cursor: not-allowed; }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 18px; }
+  .demo-tag {
+    display: inline-block; background: #fff3c4; color: #7a5a00; font-size: .75rem;
+    padding: 3px 8px; border-radius: 999px; margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bar degli Amici</h1>
+  <p>Benvenuti! Sfogliate, scegliete e ordinate dal tavolo.</p>
+  <span class="demo-tag">Versione dimostrativa</span>
+</header>
+
+<div class="table-picker" id="tablePicker">
+  <label for="tableSelect">Tavolo</label>
+  <select id="tableSelect"></select>
+</div>
+
+<h2>Apericena</h2>
+<p class="intro">Ogni apericena include il tagliere e gli stuzzichini. Scegliete la taglia e aggiungete da bere sotto.</p>
+<div class="list" id="apericena"></div>
+
+<h2>Da bere</h2>
+<p class="intro">Birre, spritz, cocktail e analcolici.</p>
+<div class="list" id="drinks"></div>
+
+<div class="cart">
+  <div class="sum">Totale<strong id="total">0,00 €</strong></div>
+  <button class="btn" id="sendBtn" disabled>Invia ordine</button>
+</div>
+
+<footer>Bar degli Amici · Via Esempio, 1 · Aperti tutti i giorni 18:00–02:00<br>Questa è una pagina dimostrativa: prezzi e piatti sono di esempio.</footer>
+
+<script>
+  // ---- Impostazioni demo ----
+  // Numero WhatsApp del locale (formato internazionale, senza +). Qui è un numero finto di prova.
+  const WHATSAPP_NUMBER = "390000000000";
+
+  // ---- Menu di esempio ----
+  const MENU = {
+    apericena: [
+      { id: "a1", name: "Apericena Light", desc: "Spritz o calice di vino + 3 stuzzichini", price: 5, color: "#f59e0b" },
+      { id: "a2", name: "Apericena Classico", desc: "Un drink a scelta + tagliere di salumi e formaggi", price: 8, color: "#d97706" },
+      { id: "a3", name: "Apericena Tagliere", desc: "Due drink + tagliere misto e focaccia", price: 12, color: "#b45309" },
+      { id: "a4", name: "Apericena Buffet", desc: "Due drink + buffet caldo e freddo a volontà", price: 15, color: "#92400e" },
+      { id: "a5", name: "Apericena Premium", desc: "Prosecco o cocktail del giorno + buffet completo + dolce", price: 20, color: "#7c2d12" }
+    ],
+    drinks: [
+      { id: "d1", name: "Spritz", desc: "Aperol o Campari, prosecco, soda", price: 6, color: "#fb923c" },
+      { id: "d2", name: "Birra artigianale", desc: "Bionda o rossa alla spina, 40 cl", price: 5, color: "#eab308" },
+      { id: "d3", name: "Cocktail del giorno", desc: "Chiedete al banco il cocktail di stasera", price: 8, color: "#ec4899" },
+      { id: "d4", name: "Calice di vino", desc: "Rosso, bianco o rosato della casa", price: 5, color: "#9f1239" },
+      { id: "d5", name: "Prosecco", desc: "Calice di prosecco brut", price: 6, color: "#facc15" },
+      { id: "d6", name: "Bibita", desc: "Coca-Cola, Coca-Cola Zero, Sprite", price: 3, color: "#64748b" },
+      { id: "d7", name: "Acqua", desc: "Naturale o frizzante, 50 cl", price: 2, color: "#38bdf8" }
+    ]
+  };
+
+  const ALL_ITEMS = [...MENU.apericena, ...MENU.drinks];
+  const cart = {}; // id -> quantità
+
+  // Foto finte generate in SVG: colore di fondo + nome del piatto
+  function placeholderImg(item) {
+    const label = item.name.replace(/&/g, "e");
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">
+      <rect width="100%" height="100%" fill="${item.color}"/>
+      <circle cx="110" cy="92" r="52" fill="rgba(255,255,255,.22)"/>
+      <text x="50%" y="172" text-anchor="middle" font-family="system-ui,sans-serif" font-size="17" font-weight="700" fill="#fff">${label}</text>
+      <text x="50%" y="196" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="rgba(255,255,255,.85)">foto dimostrativa</text>
+    </svg>`;
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+  }
+
+  function euro(n) {
+    return n.toFixed(2).replace(".", ",") + " €";
+  }
+
+  function renderList(containerId, items) {
+    const box = document.getElementById(containerId);
+    box.innerHTML = items.map(item => `
+      <div class="item">
+        <img src="${placeholderImg(item)}" alt="${item.name}">
+        <div class="info">
+          <div class="name">${item.name}</div>
+          <div class="desc">${item.desc}</div>
+          <div class="row">
+            <span class="price">${euro(item.price)}</span>
+            <div class="qty">
+              <button type="button" data-id="${item.id}" data-d="-1" aria-label="Togli">−</button>
+              <span id="q-${item.id}">0</span>
+              <button type="button" data-id="${item.id}" data-d="1" aria-label="Aggiungi">+</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join("");
+  }
+
+  function updateCart() {
+    let total = 0, count = 0;
+    ALL_ITEMS.forEach(item => {
+      const q = cart[item.id] || 0;
+      document.getElementById("q-" + item.id).textContent = q;
+      total += q * item.price;
+      count += q;
+    });
+    document.getElementById("total").textContent = euro(total);
+    document.getElementById("sendBtn").disabled = count === 0;
+  }
+
+  function currentTable() {
+    return document.getElementById("tableSelect").value;
+  }
+
+  function buildOrderMessage() {
+    const lines = ALL_ITEMS
+      .filter(item => (cart[item.id] || 0) > 0)
+      .map(item => `${cart[item.id]} x ${item.name} (${euro(item.price * cart[item.id])})`);
+    const total = ALL_ITEMS.reduce((s, i) => s + (cart[i.id] || 0) * i.price, 0);
+    return `Ordine tavolo ${currentTable()}\n${lines.join("\n")}\nTotale: ${euro(total)}`;
+  }
+
+  // Eventi
+  document.addEventListener("click", e => {
+    const btn = e.target.closest("button[data-id]");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    const d = parseInt(btn.dataset.d, 10);
+    cart[id] = Math.max(0, (cart[id] || 0) + d);
+    updateCart();
+  });
+
+  document.getElementById("sendBtn").addEventListener("click", () => {
+    const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(buildOrderMessage());
+    window.location.href = url;
+  });
+
+  // Tavolo: da ?tavolo=N, altrimenti selettore (per la dimostrazione)
+  (function initTable() {
+    const sel = document.getElementById("tableSelect");
+    for (let i = 1; i <= 5; i++) {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = "Tavolo " + i;
+      sel.appendChild(opt);
+    }
+    const fromUrl = new URLSearchParams(window.location.search).get("tavolo");
+    if (fromUrl && Number(fromUrl) >= 1 && Number(fromUrl) <= 5) {
+      sel.value = fromUrl;
+      document.getElementById("tablePicker").style.display = "none";
+    }
+    sel.addEventListener("change", () => {});
+  })();
+
+  renderList("apericena", MENU.apericena);
+  renderList("drinks", MENU.drinks);
+  updateCart();
+</script>
+</body>
+</html>

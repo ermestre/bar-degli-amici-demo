@@ -1,21 +1,125 @@
 {
   "locale": "Bar degli Amici",
   "categorie": [
-    { "id": "apericena", "nome": "Apericena", "nota": "Ogni apericena include il tagliere e gli stuzzichini." },
-    { "id": "bere", "nome": "Da bere", "nota": "Birre, spritz, cocktail e analcolici." }
+    {
+      "id": "apericena",
+      "nome": "Apericena",
+      "nota": "Ogni apericena include il tagliere e gli stuzzichini."
+    },
+    {
+      "id": "bere",
+      "nome": "Da bere",
+      "nota": "Birre, spritz, cocktail e analcolici."
+    }
   ],
   "piatti": [
-    { "id": "a1", "categoria": "apericena", "nome": "Apericena Light", "descrizione": "Spritz o calice di vino + 3 stuzzichini", "prezzo": 5, "foto": "", "disponibile": true },
-    { "id": "a2", "categoria": "apericena", "nome": "Apericena Classico", "descrizione": "Un drink a scelta + tagliere di salumi e formaggi", "prezzo": 8, "foto": "", "disponibile": true },
-    { "id": "a3", "categoria": "apericena", "nome": "Apericena Tagliere", "descrizione": "Due drink + tagliere misto e focaccia", "prezzo": 12, "foto": "", "disponibile": true },
-    { "id": "a4", "categoria": "apericena", "nome": "Apericena Buffet", "descrizione": "Due drink + buffet caldo e freddo a volonta'", "prezzo": 15, "foto": "", "disponibile": true },
-    { "id": "a5", "categoria": "apericena", "nome": "Apericena Premium", "descrizione": "Prosecco o cocktail del giorno + buffet completo + dolce", "prezzo": 20, "foto": "", "disponibile": true },
-    { "id": "d1", "categoria": "bere", "nome": "Spritz", "descrizione": "Aperol o Campari, prosecco, soda", "prezzo": 6, "foto": "", "disponibile": true },
-    { "id": "d2", "categoria": "bere", "nome": "Birra artigianale", "descrizione": "Bionda o rossa alla spina, 40 cl", "prezzo": 5, "foto": "", "disponibile": true },
-    { "id": "d3", "categoria": "bere", "nome": "Cocktail del giorno", "descrizione": "Chiedete al banco il cocktail di stasera", "prezzo": 8, "foto": "", "disponibile": true },
-    { "id": "d4", "categoria": "bere", "nome": "Calice di vino", "descrizione": "Rosso, bianco o rosato della casa", "prezzo": 5, "foto": "", "disponibile": true },
-    { "id": "d5", "categoria": "bere", "nome": "Prosecco", "descrizione": "Calice di prosecco brut", "prezzo": 6, "foto": "", "disponibile": true },
-    { "id": "d6", "categoria": "bere", "nome": "Bibita", "descrizione": "Coca-Cola, Coca-Cola Zero, Sprite", "prezzo": 3, "foto": "", "disponibile": true },
-    { "id": "d7", "categoria": "bere", "nome": "Acqua", "descrizione": "Naturale o frizzante, 50 cl", "prezzo": 2, "foto": "", "disponibile": true }
+    {
+      "id": "a1",
+      "categoria": "apericena",
+      "nome": "Apericena Light",
+      "descrizione": "Spritz o calice di vino + 3 stuzzichini",
+      "prezzo": 5,
+      "foto": "img/a1-1793370627770.jpg",
+      "disponibile": true
+    },
+    {
+      "id": "a2",
+      "categoria": "apericena",
+      "nome": "Apericena Classico",
+      "descrizione": "Un drink a scelta + tagliere di salumi e formaggi",
+      "prezzo": 8,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "a3",
+      "categoria": "apericena",
+      "nome": "Apericena Tagliere",
+      "descrizione": "Due drink + tagliere misto e focaccia",
+      "prezzo": 12,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "a4",
+      "categoria": "apericena",
+      "nome": "Apericena Buffet",
+      "descrizione": "Due drink + buffet caldo e freddo a volonta'",
+      "prezzo": 15,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "a5",
+      "categoria": "apericena",
+      "nome": "Apericena Premium",
+      "descrizione": "Prosecco o cocktail del giorno + buffet completo + dolce",
+      "prezzo": 20,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d1",
+      "categoria": "bere",
+      "nome": "Spritz",
+      "descrizione": "Aperol o Campari, prosecco, soda",
+      "prezzo": 6,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d2",
+      "categoria": "bere",
+      "nome": "Birra artigianale",
+      "descrizione": "Bionda o rossa alla spina, 40 cl",
+      "prezzo": 5,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d3",
+      "categoria": "bere",
+      "nome": "Cocktail del giorno",
+      "descrizione": "Chiedete al banco il cocktail di stasera",
+      "prezzo": 8,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d4",
+      "categoria": "bere",
+      "nome": "Calice di vino",
+      "descrizione": "Rosso, bianco o rosato della casa",
+      "prezzo": 5,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d5",
+      "categoria": "bere",
+      "nome": "Prosecco",
+      "descrizione": "Calice di prosecco brut",
+      "prezzo": 6,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d6",
+      "categoria": "bere",
+      "nome": "Bibita",
+      "descrizione": "Coca-Cola, Coca-Cola Zero, Sprite",
+      "prezzo": 3,
+      "foto": "",
+      "disponibile": true
+    },
+    {
+      "id": "d7",
+      "categoria": "bere",
+      "nome": "Acqua",
+      "descrizione": "Naturale o frizzante, 50 cl",
+      "prezzo": 2,
+      "foto": "",
+      "disponibile": true
+    }
   ]
 }
